@@ -8,15 +8,16 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
-// import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-//import Header from '../../components/header/header.component';
+import Header from '../../components/header/header.component';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-// import { auth, createUserProfileDocument } from '../../firebase/firebase.utils';
+import { auth, createUserProfileDocument } from '../../firebase/firebase.utils';
+import { InputLabel, MenuItem, Select } from '@material-ui/core';
 
 function Copyright() {
   return (
@@ -61,47 +62,47 @@ class SignUp extends React.Component {
       lastName : '',
       mobileNumber : '',
       email : '',
-      password : ''
+      password : '',
+      type : '',
     }
   }
 
 
-  handleSubmit = () => {
-      alert("HIIIII");
-  }
-//   handleSubmit = async(event) => {
-//     event.preventDefault();
-//     const { firstName,lastName,email,password,mobileNumber } = this.state;
-//     const displayName = firstName + ' ' + lastName;
+  
+  handleSubmit = async(event) => {
+    event.preventDefault();
+    const { firstName,lastName,email,password,mobileNumber } = this.state;
+    const displayName = firstName + ' ' + lastName;
     
-//     try{
-//       const { user } = await auth.createUserWithEmailAndPassword(
-//         email,
-//         password
-//       );
+    try{
+      const { user } = await auth.createUserWithEmailAndPassword(
+        email,
+        password
+      );
 
-//       await createUserProfileDocument(user,{ firstName,lastName,mobileNumber,displayName });
-//       this.setState({
-//         firstName : '',
-//         lastName : '',
-//         email : '',
-//         password : '',
-//         mobileNumber : ''
-//       })
-//     } catch(error){
-//       console.log(error);
-//     }
-//   }
+      await createUserProfileDocument(user,{ firstName,lastName,mobileNumber,displayName });
+      this.setState({
+        firstName : '',
+        lastName : '',
+        email : '',
+        password : '',
+        mobileNumber : ''
+      })
+    } catch(error){
+      console.log(error);
+    }
+  }
   
   handleChange = (event) => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
   };
+  
 
 
   render(){
    const {classes} = this.props;
-   const { firstName,lastName,mobileNumber,email,password } = this.state;
+   const { firstName,lastName,mobileNumber,email,password,type } = this.state;
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -113,7 +114,7 @@ class SignUp extends React.Component {
           Sign up
         </Typography>
         <form className={classes.form} noValidate>
-          {/* <Grid container spacing={2}>
+           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
                 autoComplete="fname"
@@ -181,19 +182,34 @@ class SignUp extends React.Component {
                 autoComplete="current-password"
               />
             </Grid>
-          </Grid> */}
-          <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
-            <TileLayer
-                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <Marker position={[51.505, -0.09]}>
-                <Popup>
-                A pretty CSS3 popup. <br /> Easily customizable.
-                </Popup>
-            </Marker>
-           </MapContainer>
-          {/* <Button
+            <Grid item xs = {12}>
+            <InputLabel
+                id="demo-simple-select-label"
+              >
+                Type of User
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="type"
+                required
+                name="type"
+                value={type}
+                onChange={this.handleChange}
+                fullWidth
+              >
+                <MenuItem name="type" value="Customer">
+                  Customer
+                </MenuItem>
+                <MenuItem name="type" value="Retailer">
+                  Retailer
+                </MenuItem>
+                <MenuItem name="type" value="Wholesaler">
+                  Wholesaler
+                </MenuItem>
+              </Select>
+            </Grid>
+          </Grid> 
+          <Button
             type="submit"
             fullWidth
             variant="contained"
@@ -209,7 +225,7 @@ class SignUp extends React.Component {
                 Already have an account? Sign in
               </Link>
             </Grid>
-          </Grid> */}
+          </Grid> 
         </form>
       </div>
       <Box mt={5}>
