@@ -1,11 +1,11 @@
-export const addItemsToCart = (cartItems, cartItemToAdd) => {
+export const addProductsToCart = (cartItems, cartItemToAdd) => {
     const existingCartItem = cartItems.find(
-      (cartItem) => cartItem.id === cartItemToAdd.id
+      (cartItem) => cartItem.documentID === cartItemToAdd.documentID
     );
-  
+      console.log(cartItemToAdd);
     if (existingCartItem) {
       return cartItems.map((cartItem) =>
-        cartItem.id === cartItemToAdd.id
+        cartItem.documentID === cartItemToAdd.documentID
           ? { ...cartItem, quantity: cartItem.quantity + 1 }
           : cartItem
       );
@@ -13,9 +13,11 @@ export const addItemsToCart = (cartItems, cartItemToAdd) => {
   
     return [...cartItems, { ...cartItemToAdd, quantity: 1 }];
   };
+
+
   export const removeItemFromCart = (cartItems, cartItemToRemove) => {
     return cartItems.map((cartItem) =>
-      cartItem.id === cartItemToRemove.id
+      cartItem.documentID === cartItemToRemove.documentID
         ? { ...cartItem, quantity: cartItem.quantity - 1 }
         : cartItem
     );

@@ -10,8 +10,10 @@ import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import Header from '../../components/header/header.component';
+import { auth, signInWithGoogle } from '../../firebase/firebase.utils';
 
 function Copyright() {
   return (
@@ -26,7 +28,7 @@ function Copyright() {
   );
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = (theme) => ({
   paper: {
     marginTop: theme.spacing(8),
     display: 'flex',
@@ -42,13 +44,38 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1),
   },
   submit: {
-    margin: theme.spacing(3, 0, 2),
+    margin: theme.spacing(1, 0, 1),
   },
-}));
+});
 
-export default function SignIn() {
-  const classes = useStyles();
-
+class SignIn extends React.Component {
+  
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: "",
+      password: "",
+    };
+  }
+  handleSubmit = async (event) => {
+    event.preventDefault();
+    const { email, password } = this.state;
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      this.setState({
+        email: "",
+        passowrd: "",
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  handleChange = (event) => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  };
+  render(){
+    const {classes} = this.props
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -68,6 +95,7 @@ export default function SignIn() {
             id="email"
             label="Email Address"
             name="email"
+            onChange = {this.handleChange}
             autoComplete="email"
             autoFocus
           />
@@ -80,6 +108,7 @@ export default function SignIn() {
             label="Password"
             type="password"
             id="password"
+            onChange = {this.handleChange}
             autoComplete="current-password"
           />
           <FormControlLabel
@@ -92,8 +121,18 @@ export default function SignIn() {
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick = {this.handleSubmit}
           >
             Sign In
+          </Button>
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+            onClick = {signInWithGoogle}
+          >
+            Sign In With Google
           </Button>
           <Grid container>
             <Grid item xs>
@@ -102,10 +141,11 @@ export default function SignIn() {
               </Link>
             </Grid>
             <Grid item>
-              <Link href="#" variant="body2">
+              <Link href="/signup" variant="body2">
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>
+            
           </Grid>
         </form>
       </div>
@@ -113,5 +153,8 @@ export default function SignIn() {
         <Copyright />
       </Box>
     </Container>
-  );
+  )
+  }
 }
+
+export default withStyles(useStyles)(SignIn);

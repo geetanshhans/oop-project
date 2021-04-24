@@ -1,7 +1,7 @@
 import { AccountCircle, HomeOutlined, HomeRounded,ShoppingCartOutlined } from "@material-ui/icons";
 import React from "react";
 import { fade, makeStyles } from '@material-ui/core/styles';
- import { Link } from "react-router-dom";
+ import { Link, useHistory } from "react-router-dom";
  import { connect } from "react-redux";
 //import "./header.styles.scss";
  import { auth } from "../../firebase/firebase.utils";
@@ -85,8 +85,10 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 
-const Header = ({ currentUser, toggleCartHidden, itemCount, hidden }) => {
+const Header = ({ currentUser, toggleCartHidden, itemsCount, hidden }) => {
     const classes = useStyles();
+    const history = useHistory();
+    const [searchInput, setSearchInput] = React.useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -125,8 +127,38 @@ const Header = ({ currentUser, toggleCartHidden, itemCount, hidden }) => {
       {currentUser 
       ? 
       <div>
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick = { () => auth.signOut()}>Sign Out</MenuItem>
+      {currentUser.type === "Customer" 
+      ?
+      <div>
+      <Link to="/customer-profile" className = "link-button">
+        <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      </Link>
+      <Link to="/my-orders" className = "link-button">
+        <MenuItem onClick={handleMenuClose}>My Orders</MenuItem>
+      </Link>
+      </div>
+      :
+      (currentUser.type === "Retailer" 
+      ?
+      <div>
+      <Link to="/retailer-profile" className = "link-button">
+        <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      </Link>
+      <Link to="/my-orders" className = "link-button">
+      <MenuItem onClick={handleMenuClose}>My Orders</MenuItem>
+      </Link>
+      </div>
+      :
+      <Link to="/wholesaler-profile" className = "link-button">
+        <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      </Link>
+      ) 
+      }
+      
+      <MenuItem onClick = { () => {
+        auth.signOut()
+        history.push("/")
+        }}>Sign Out</MenuItem>
       </div>
       :
       <div>
@@ -171,11 +203,25 @@ const Header = ({ currentUser, toggleCartHidden, itemCount, hidden }) => {
             </div>
             <div className={classes.grow} />
             <div style = {{display : "flex"}}>
+              {currentUser 
+              ?
+              (currentUser.type === "Wholesaler" 
+              ?
+              null
+              :
               <IconButton aria-label="show 17 new notifications" color="inherit" onClick = {toggleCartHidden}>
-              <Badge badgeContent={itemCount} color="secondary">
+              <Badge badgeContent={itemsCount} color="secondary">
                 <ShoppingCartOutlined />
               </Badge>
-              </IconButton>  
+              </IconButton>
+              )
+              :
+              <IconButton aria-label="show 17 new notifications" color="inherit" onClick = {toggleCartHidden}>
+              <Badge badgeContent={itemsCount} color="secondary">
+                <ShoppingCartOutlined />
+              </Badge>
+              </IconButton>
+                }  
               <IconButton
                 edge="end"
                 aria-label="account of current user"
@@ -199,9 +245,10 @@ const Header = ({ currentUser, toggleCartHidden, itemCount, hidden }) => {
 
  const mapStateToProps = (state) => ({
   currentUser: selectCurrentUser(state),
-  itemCount: selectCartItemsCount(state),
-  hidden: selectCartHidden(state),
+  itemsCount : selectCartItemsCount(state),
+  hidden: selectCartHidden(state),  
  });
+
 
  const mapDispatchToProps = (dispatch) => ({
     toggleCartHidden: () => dispatch(toggleCartHidden()),

@@ -63,31 +63,37 @@ class SignUp extends React.Component {
       mobileNumber : '',
       email : '',
       password : '',
+      confirmPassword : '',
       type : '',
-    }
+    };
   }
 
 
   
-  handleSubmit = async(event) => {
+  handleSubmit = async (event) => {
     event.preventDefault();
-    const { firstName,lastName,email,password,mobileNumber } = this.state;
+    const { firstName,lastName,email,password,mobileNumber,type,confirmPassword } = this.state;
     const displayName = firstName + ' ' + lastName;
     
+    if(password !== confirmPassword){
+      alert("The passwords don't match");
+      return;
+    }
     try{
       const { user } = await auth.createUserWithEmailAndPassword(
         email,
         password
       );
-
-      await createUserProfileDocument(user,{ firstName,lastName,mobileNumber,displayName });
+      await createUserProfileDocument(user,{ firstName,lastName,mobileNumber,displayName,type });
       this.setState({
         firstName : '',
         lastName : '',
         email : '',
         password : '',
+        confirmPassword : '',
+        type : '',
         mobileNumber : ''
-      })
+      });
     } catch(error){
       console.log(error);
     }
@@ -102,7 +108,7 @@ class SignUp extends React.Component {
 
   render(){
    const {classes} = this.props;
-   const { firstName,lastName,mobileNumber,email,password,type } = this.state;
+   const { firstName,lastName,mobileNumber,email,password,type,confirmPassword } = this.state;
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -179,6 +185,20 @@ class SignUp extends React.Component {
                 label="Password"
                 type="password"
                 id="password"
+                autoComplete="current-password"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                value = {confirmPassword}
+                onChange = {this.handleChange}
+                name="confirmPassword"
+                label="Confirm Password"
+                type="password"
+                id="confirmPassword"
                 autoComplete="current-password"
               />
             </Grid>
